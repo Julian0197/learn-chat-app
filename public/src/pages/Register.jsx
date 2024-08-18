@@ -1,15 +1,64 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Logo from "../assets/logo.svg";
+import { ToastContainer, toast } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
+import { registerRoute } from "../utils/APIRoutes";
 
 function Register () {
-  const handleSubmit = (event) => {
+  const navigate = useNavigate();
+  const [values, setValues] = React.useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  })
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    alert('form')
+    if (handleValidation()) {
+      console.log(registerRoute, 'registerRoute')
+      const { password, email, username } = values;
+      const { data } = await axios.post(registerRoute, {
+        username,
+        email,
+        password,
+      })
+      if (data.status === false) {
+        toast.error(data.message, toastOptions)
+      }
+      if (data.status === true) {
+        localStorage.setItem('chat-app-user', JSON.stringify(data.user))
+      }
+      navigate("/login")
+    }
   }
 
   const handleChange = (event) => {
-    console.log(event.target.value)
+    setValues({ ...values, [event.target.name]: event.target.value })
+  }
+
+  const toastOptions = {
+    position: "top-right",
+    autoClose: 5000,
+    pauseOnHover: true,
+    theme: "dark"
+  }
+  const handleValidation = () => {
+    const { username, email, password, confirmPassword } = values;
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match', toastOptions)
+      return false
+    } else if (username.length < 3) {
+      toast.error('Username must be at least 3 characters long', toastOptions)
+    } else if (password.length < 6) {
+      toast.error('Password must be at least 6 characters long', toastOptions)
+    } else if (email === '') {
+      toast.error('Email is required', toastOptions)
+    }
+    return true
   }
 
   return (
@@ -17,7 +66,7 @@ function Register () {
       <FormContainer>
         <form onSubmit={(event) => handleSubmit(event)}>
           <div className="brand">
-            <img src="" alt="" />
+            <img src={Logo} alt="Logo" />
             <h1>snappy</h1>
           </div>
           <input type="text" placeholder="Username" name="username" onChange={(e) => handleChange(e)} />
@@ -28,12 +77,83 @@ function Register () {
           <span>Already have an account ? <Link to="/login">Login</Link></span>
         </form>
       </FormContainer>
+      <ToastContainer />
     </>
   );
 }
 
 const FormContainer = styled.div`
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+  align-items: center;
+  background-color: #131324;
   
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: center;
+    img {
+      height: 5rem;
+    }
+    h1 {
+      color: white;
+      text-transform: uppercase;
+    }
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    background-color: #00000076;
+    border-radius: 2rem;
+    padding: 3rem 5rem;
+
+    input {
+      background-color: transparent;
+      padding: 1rem;
+      border: 0.1rem solid #4e0eff;
+      border-radius: 0.4rem;
+      color: white;
+      font-size: 1rem;
+      &:focus {
+        border: 0.1rem solid #997af0;
+        outline: none;
+      }
+    }
+
+    button {
+      padding: 1rem;
+      border-radius: 0.5rem;
+      border: none;
+      outline: none;
+      background-color: #f7f7f7;
+      color: #131324;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      font-size: 1.1rem;
+      &:hover {
+        background-color: #4e0eff; d
+      }
+    }
+
+    span {
+      color: white;
+      text-transform: uppercase;
+      a {
+        color: #4e0eff;
+        text-decoration: none;
+        font-weight: bold;
+      }
+    }
+  }
 `;
+
 
 export default Register;
