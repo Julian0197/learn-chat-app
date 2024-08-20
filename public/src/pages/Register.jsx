@@ -19,7 +19,6 @@ function Register () {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (handleValidation()) {
-      console.log(registerRoute, 'registerRoute')
       const { password, email, username } = values;
       const { data } = await axios.post(registerRoute, {
         username,
@@ -31,8 +30,8 @@ function Register () {
       }
       if (data.status === true) {
         localStorage.setItem('chat-app-user', JSON.stringify(data.user))
+        navigate("/login")
       }
-      navigate("/login")
     }
   }
 
@@ -46,6 +45,13 @@ function Register () {
     pauseOnHover: true,
     theme: "dark"
   }
+
+  useEffect(() => {
+    if (localStorage.getItem('chat-app-user')) {
+      navigate("/")
+    }
+  }, [])
+
   const handleValidation = () => {
     const { username, email, password, confirmPassword } = values;
     if (password !== confirmPassword) {
