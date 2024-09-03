@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import styled from "styled-components";
-import { Link, useNavigate } from "react-router-dom";
-import Logo from "../assets/logo.svg";
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { Link, useNavigate } from 'react-router-dom';
+import Logo from '../assets/logo.svg';
 import { ToastContainer, toast } from 'react-toastify';
-import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
-import { loginRoute } from "../utils/APIRoutes";
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+import { loginRoute } from '../utils/APIRoutes';
 
-function Login () {
+function Login() {
   const navigate = useNavigate();
   const [values, setValues] = React.useState({
     username: '',
     password: '',
-  })
+  });
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -21,44 +21,44 @@ function Login () {
       const { data } = await axios.post(loginRoute, {
         username,
         password,
-      })
+      });
       if (data.status === false) {
-        toast.error(data.message, toastOptions)
+        toast.error(data.message, toastOptions);
       }
       if (data.status === true) {
-        localStorage.setItem('chat-app-user', JSON.stringify(data.user))
-        navigate("/")
+        localStorage.setItem('chat-app-user', JSON.stringify(data.user));
+        navigate('/');
       }
     }
-  }
+  };
 
   const handleChange = (event) => {
-    setValues({ ...values, [event.target.name]: event.target.value })
-  }
+    setValues({ ...values, [event.target.name]: event.target.value });
+  };
 
   const toastOptions = {
-    position: "top-right",
+    position: 'top-right',
     autoClose: 5000,
     pauseOnHover: true,
-    theme: "dark"
-  }
+    theme: 'dark',
+  };
 
   useEffect(() => {
     if (localStorage.getItem('chat-app-user')) {
-      navigate("/")
+      navigate('/');
     }
-  }, [])
+  }, []);
 
   const handleValidation = () => {
     const { username, password } = values;
     if (password === '') {
-      toast.error('Passwords is required', toastOptions)
-      return false
+      toast.error('Passwords is required', toastOptions);
+      return false;
     } else if (username.length === 0) {
-      toast.error('Username is required', toastOptions)
+      toast.error('Username is required', toastOptions);
     }
-    return true
-  }
+    return true;
+  };
 
   return (
     <>
@@ -68,10 +68,22 @@ function Login () {
             <img src={Logo} alt="Logo" />
             <h1>snappy</h1>
           </div>
-          <input type="text" placeholder="Username" name="username" onChange={(e) => handleChange(e)} />
-          <input type="password" placeholder="Password" name="password" onChange={(e) => handleChange(e)} />
-          <button type="submit">Create User </button>
-          <span>Don't have an account ? <Link to="/register">Register</Link></span>
+          <input
+            type="text"
+            placeholder="Username"
+            name="username"
+            onChange={(e) => handleChange(e)}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            name="password"
+            onChange={(e) => handleChange(e)}
+          />
+          <button type="submit">Login</button>
+          <span>
+            Don't have an account ? <Link to="/register">Register</Link>
+          </span>
         </form>
       </FormContainer>
       <ToastContainer />
@@ -151,6 +163,5 @@ const FormContainer = styled.div`
     }
   }
 `;
-
 
 export default Login;

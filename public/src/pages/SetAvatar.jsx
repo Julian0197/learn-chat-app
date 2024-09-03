@@ -53,9 +53,9 @@ export default function SetAvatar() {
   };
 
   useEffect(() => {
+    const data = [];
     const fetchAvatars = async () => {
       try {
-        const data = [];
         for (let i = 0; i < 4; i++) {
           const image = await axios.get(
             `${api}/${Math.round(Math.random() * 1000)}`
@@ -63,9 +63,14 @@ export default function SetAvatar() {
           const buffer = Buffer.from(image.data);
           data.push(buffer.toString('base64'));
         }
+      } catch (error) {
+        if (error.response.status === 429) {
+          toast.error(error.response.data, toastOptions);
+        }
+      } finally {
         setAvatars(data);
         setLoading(false);
-      } catch (error) {}
+      }
     };
     fetchAvatars();
   }, []);
