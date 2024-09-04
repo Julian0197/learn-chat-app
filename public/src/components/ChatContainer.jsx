@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import Logout from './Logout';
 
 export default function ChatContainer({ currentChat = {} }) {
-  console.log(currentChat, 'currentChat.avatarImage');
   return (
     <Container>
       <div className="chat-header">
@@ -17,6 +17,7 @@ export default function ChatContainer({ currentChat = {} }) {
             <h3>{currentChat.username}</h3>
           </div>
         </div>
+        <Logout />
       </div>
     </Container>
   );
