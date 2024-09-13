@@ -2,10 +2,36 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Logout from './Logout';
 import ChatInput from './ChatInput';
-import Messages from './Messages';
+import axios from 'axios';
+import { sendMessagesRoute, getAllMessagesRoute } from '../utils/APIRoutes';
 
-export default function ChatContainer({ currentChat = {} }) {
-  const handleSendMsg = async (msg) => {};
+export default function ChatContainer({ currentChat }) {
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const currentUser = await JSON.parse(
+        localStorage.getItem('chat-app-user')
+      );
+      console.log(currentUser._id, currentChat._id, 999);
+      const res = await axios.post(getAllMessagesRoute, {
+        from: currentUser._id,
+        to: currentChat._id,
+      });
+      console.log(res, 'msg');
+      setMessages(res.data);
+    };
+    fetchMessages();
+  }, [currentChat]);
+
+  const handleSendMsg = async (msg) => {
+    const currentUser = await JSON.parse(localStorage.getItem('chat-app-user'));
+    await axios.post(sendMessagesRoute, {
+      from: currentUser._id,
+      to: currentChat._id,
+      message: msg,
+    });
+  };
 
   return (
     <Container>
@@ -23,14 +49,30 @@ export default function ChatContainer({ currentChat = {} }) {
         </div>
         <Logout />
       </div>
-      <Messages />
+      <div className="chat-messages">
+        {messages.map((msg) => {
+          return (
+            <div className={`message ${msg.fromSelf ? 'sended' : 'received'}`}>
+              <div className="content">
+                <p>{msg.message}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
       <ChatInput handleSendMsg={handleSendMsg} />
     </Container>
   );
 }
 
 const Container = styled.div`
-  padding-top: 1rem;
+  display: grid;
+  grid-template-rows: 10% 80% 10%;
+  gap: 0.1rem;
+  overflow: hidden;
+  @media screen and (min-width: 720px) and (max-width: 1080px) {
+    grid-template-rows: 15% 70% 15%;
+  }
   .chat-header {
     display: flex;
     justify-content: space-between;
@@ -49,6 +91,48 @@ const Container = styled.div`
         h3 {
           color: white;
         }
+      }
+    }
+  }
+  .chat-messages {
+    padding: 1rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: auto;
+    &::-webkit-scrollbar {
+      width: 0.2rem;
+      &-thumb {
+        background-color: #ffffff39;
+        width: 0.1rem;
+        border-radius: 1rem;
+      }
+    }
+    .message {
+      display: flex;
+      align-items: center;
+      .content {
+        max-width: 40%;
+        overflow-wrap: break-word;
+        padding: 1rem;
+        font-size: 1.1rem;
+        border-radius: 1rem;
+        color: #d1d1d1;
+        @media screen and (min-width: 720px) and (max-width: 1080px) {
+          max-width: 70%;
+        }
+      }
+    }
+    .sended {
+      justify-content: flex-end;
+      .content {
+        background-color: #4f04ff21;
+      }
+    }
+    .recieved {
+      justify-content: flex-start;
+      .content {
+        background-color: #9900ff20;
       }
     }
   }
