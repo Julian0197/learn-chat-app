@@ -19,7 +19,6 @@ module.exports.addMessage = async (req, res, next) => {
 };
 
 module.exports.getAllMessage = async (req, res, next) => {
-  console.log(req, 'req');
   try {
     const { from, to } = req.body;
     const messages = await Messages.find({
@@ -27,13 +26,13 @@ module.exports.getAllMessage = async (req, res, next) => {
         $all: [from, to],
       },
     }).sort({ updatedAt: 1 });
-    console.log(messages, 'hh');
     const projectMessages = messages.map((msg) => {
       return {
         fromSelf: msg.sender.toString() === from.toString(),
         message: msg.message.text,
       };
     });
+    return res.json(projectMessages);
   } catch (ex) {
     next(ex);
   }
